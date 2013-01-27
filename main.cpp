@@ -418,7 +418,6 @@ void save_fractal(FRACTAL_TYPE fractal, FRACTAL_TYPE master_fractal)
                 return;
             }
         }
-
         fclose(file);
         file = fopen(file_name, "wb");
 
@@ -426,17 +425,14 @@ void save_fractal(FRACTAL_TYPE fractal, FRACTAL_TYPE master_fractal)
         index += sizeof(fractal.top_left.x_point);
         memcpy(&data[index],&fractal.top_left.y_point, sizeof(fractal.top_left.y_point));
         index += sizeof(fractal.top_left.y_point);
-
         memcpy(&data[index],&fractal.top_right.x_point, sizeof(fractal.top_right.x_point));
         index += sizeof(fractal.top_right.x_point);
         memcpy(&data[index],&fractal.top_right.y_point, sizeof(fractal.top_right.y_point));
         index += sizeof(fractal.top_right.y_point);
-
         memcpy(&data[index],&fractal.bottom_left.x_point, sizeof(fractal.bottom_left.x_point));
         index += sizeof(fractal.bottom_left.x_point);
         memcpy(&data[index],&fractal.bottom_left.y_point, sizeof(fractal.bottom_left.y_point));
         index += sizeof(fractal.bottom_left.y_point);
-
         memcpy(&data[index],&fractal.bottom_right.x_point, sizeof(fractal.bottom_right.x_point));
         index += sizeof(fractal.bottom_right.x_point);
         memcpy(&data[index],&fractal.bottom_right.y_point, sizeof(fractal.bottom_right.y_point));
@@ -474,17 +470,14 @@ FRACTAL_TYPE load_fractal(FRACTAL_TYPE master_fractal)
         index += sizeof(fractal.top_left.x_point);
         memcpy(&fractal.top_left.y_point, &data[index],sizeof(fractal.top_left.y_point));
         index += sizeof(fractal.top_left.y_point);
-
         memcpy(&fractal.top_right.x_point, &data[index],sizeof(fractal.top_right.x_point));
         index += sizeof(fractal.top_right.x_point);
         memcpy(&fractal.top_right.y_point, &data[index],sizeof(fractal.top_right.y_point));
         index += sizeof(fractal.top_right.y_point);
-
         memcpy(&fractal.bottom_left.x_point, &data[index],sizeof(fractal.bottom_left.x_point));
         index += sizeof(fractal.bottom_left.x_point);
         memcpy(&fractal.bottom_left.y_point, &data[index],sizeof(fractal.bottom_left.y_point));
         index += sizeof(fractal.bottom_left.y_point);
-
         memcpy(&fractal.bottom_right.x_point, &data[index],sizeof(fractal.bottom_right.x_point));
         index += sizeof(fractal.bottom_right.x_point);
         memcpy(&fractal.bottom_right.y_point, &data[index],sizeof(fractal.bottom_right.y_point));
@@ -606,7 +599,7 @@ int main()
             }
 			default:
 			{
-                printf("\nUnused Option\n");
+                printf("\nFutile Option\n");
                 crack();
 			}
 		}
