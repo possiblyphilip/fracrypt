@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #define LENGTH 1000
 #define DEPTH 100000
@@ -31,26 +30,6 @@ typedef struct
     POINT_TYPE bottom_left;
     POINT_TYPE bottom_right;
 }FRACTAL_TYPE;
-
-FRACTAL_TYPE set_fractal()
-{
-    FRACTAL_TYPE fractal;
-
-    printf("top left x y: ");
-    scanf("%lf %lf",&fractal.top_left.x_point, &fractal.top_left.y_point);
-    while(getchar() != '\n');
-    printf("top right x y: ");
-    scanf("%lf %lf",&fractal.top_right.x_point, &fractal.top_right.y_point);
-    while(getchar() != '\n');
-    printf("bottom left x y: ");
-    scanf("%lf %lf",&fractal.bottom_left.x_point, &fractal.bottom_left.y_point);
-    while(getchar() != '\n');
-    printf("bottom right x y: ");
-    scanf("%lf %lf",&fractal.bottom_right.x_point, &fractal.bottom_right.y_point);
-    while(getchar() != '\n');
-
-    return fractal;
-}
 
 unsigned char rotate_left( unsigned char data, int rotate_bits)
 {
@@ -140,6 +119,148 @@ void crunch(unsigned char *data, FRACTAL_TYPE fractal, int root, DIRECTION direc
             {
                 break;
             }
+        }
+    }
+}
+
+unsigned int get_root(unsigned int index)
+{
+    unsigned int temp;
+
+    temp = (unsigned int)sqrt((double)index);
+
+    if((temp * temp) == index)
+    {
+        return temp;
+    }
+    else
+    {
+        return (unsigned int)(sqrt((double)(index))+1);
+    }
+}
+
+unsigned int get_message( unsigned char message[LENGTH])
+{
+    int ii = 0;
+    char ch;
+
+    printf("type message\n");
+
+    while(((ch = getchar()) != '\n') && ii < LENGTH)
+    {
+        message[ii] = ch;
+        ii++;
+    }
+    return ii;
+}
+
+void print_message( unsigned char message[LENGTH], unsigned int size)
+{
+    int ii;
+
+    printf("\n############## Plain Text ##############\n\n");
+
+    for(ii = 0; ii < size; ii++)
+    {
+        printf("%c", (char)message[ii]);
+    }
+    printf("\n");
+}
+
+unsigned int get_hex( unsigned char data[LENGTH])
+{
+    int ii = 0;
+    char hex_byte[2];
+
+    printf("\nEnter Hex Data\n");
+
+     while(((hex_byte[ii%2] = getchar()) != '\n') && ii < LENGTH)
+     {
+         if(ii%2)
+         {
+            sscanf(hex_byte, "%2X", &data[ii/2]);
+         }
+         ii++;
+     }
+     return ii/2;
+}
+
+void print_hex( unsigned char data[LENGTH], unsigned int size)
+{
+    int ii;
+
+    printf("\n############## Cipher Text ##############\n\n");
+
+    for(ii = 0; ii < (int)size; ii++)
+    {
+        printf("%02X", (unsigned char)data[ii]);
+    }
+    printf("\n");
+}
+
+void crunch_text(FRACTAL_TYPE fractal, DIRECTION direction)
+{
+    unsigned int root, size;
+    unsigned char data[LENGTH];
+
+    if(direction == ENCRYPT)
+    {
+        size = get_message(data);
+        root = get_root(size);
+
+        crunch(data,fractal,root,direction);
+
+        print_hex(data,size);
+    }
+    else
+    {
+        size = get_hex(data);
+        root = get_root(size);
+
+        crunch(data,fractal,root,direction);
+        print_message(data, size);
+    }
+}
+
+void crunch_file(FRACTAL_TYPE fractal, DIRECTION direction)
+{
+    FILE *file;
+    char file_name[256];
+    unsigned char *data;
+    unsigned int root;
+    long int size;
+
+    printf("\nfile name: ");
+    scanf("%s", &file_name);
+    while(getchar() != '\n');
+    file = fopen64( file_name,"rb+");
+
+    if(file)
+    {
+        fseek(file,0, SEEK_END);
+        size = ftell(file);
+        fseek(file,0, SEEK_SET);
+
+        root = get_root(size);
+        data = (unsigned char*)malloc(root*root);
+
+        fread(data,sizeof(char),size,file);
+        fseek(file,0, SEEK_SET);
+
+        crunch(data, fractal, root, direction);
+
+        fwrite(data,sizeof(char),size,file);
+
+        fclose(file);
+        free(data);
+
+        if(direction == ENCRYPT)
+        {
+            printf("\n############ File Encrypted ############\n\n");
+        }
+        else
+        {
+            printf("\n############ File Decrypted ############\n\n");
         }
     }
 }
@@ -246,145 +367,46 @@ FRACTAL_TYPE search_fractal()
 	}
 }
 
-unsigned int get_root(unsigned int index)
+void fractal_to_memory( FRACTAL_TYPE fractal, unsigned char *data)
 {
-	unsigned int temp;
+    int index = 0;
 
-	temp = (unsigned int)sqrt((double)index);
-
-	if((temp * temp) == index)
-	{
-		return temp;
-	}
-	else
-	{
-		return (unsigned int)(sqrt((double)(index))+1);
-	}
+    memcpy(&data[index],&fractal.top_left.x_point, sizeof(fractal.top_left.x_point));
+    index += sizeof(fractal.top_left.x_point);
+    memcpy(&data[index],&fractal.top_left.y_point, sizeof(fractal.top_left.y_point));
+    index += sizeof(fractal.top_left.y_point);
+    memcpy(&data[index],&fractal.top_right.x_point, sizeof(fractal.top_right.x_point));
+    index += sizeof(fractal.top_right.x_point);
+    memcpy(&data[index],&fractal.top_right.y_point, sizeof(fractal.top_right.y_point));
+    index += sizeof(fractal.top_right.y_point);
+    memcpy(&data[index],&fractal.bottom_left.x_point, sizeof(fractal.bottom_left.x_point));
+    index += sizeof(fractal.bottom_left.x_point);
+    memcpy(&data[index],&fractal.bottom_left.y_point, sizeof(fractal.bottom_left.y_point));
+    index += sizeof(fractal.bottom_left.y_point);
+    memcpy(&data[index],&fractal.bottom_right.x_point, sizeof(fractal.bottom_right.x_point));
+    index += sizeof(fractal.bottom_right.x_point);
+    memcpy(&data[index],&fractal.bottom_right.y_point, sizeof(fractal.bottom_right.y_point));
 }
 
-unsigned int get_message( unsigned char message[LENGTH])
+void memory_to_fractal(unsigned char *data, FRACTAL_TYPE *fractal)
 {
-    int ii = 0;
-    char ch;
+    int index = 0;
 
-    printf("type message\n");
-
-    while(((ch = getchar()) != '\n') && ii < LENGTH)
-    {
-        message[ii] = ch;
-        ii++;
-    }
-    return ii;
-}
-
-unsigned int get_cipher_text( unsigned char cipher[LENGTH])
-{
-	int ii = 0;
-	char hex_byte[2];
-
-    printf("\ntype cipher text\n");
-
-     while(((hex_byte[ii%2] = getchar()) != '\n') && ii < LENGTH)
-	 {
-         if(ii%2)
-         {
-            sscanf(hex_byte, "%2X", &cipher[ii/2]);
-         }
-		 ii++;
-	 }
-     return ii/2;
-}
-
-void print_cipher_text( unsigned char cipher[LENGTH], unsigned int size)
-{
-    int ii;
-
-    printf("\n############## Cipher Text ##############\n\n");
-
-    for(ii = 0; ii < (int)size; ii++)
-    {
-        printf("%02X", (unsigned char)cipher[ii]);
-    }
-	printf("\n");
-}
-
-void print_message( unsigned char message[LENGTH], unsigned int size)
-{
-    int ii;
-
-    printf("\n############## Plain Text ##############\n\n");
-
-    for(ii = 0; ii < size; ii++)
-    {
-        printf("%c", (char)message[ii]);
-    }
-	printf("\n");
-}
-
-void crunch_text(FRACTAL_TYPE fractal, DIRECTION direction)
-{
-    unsigned int root, size;
-    unsigned char data[LENGTH];
-
-    if(direction == ENCRYPT)
-    {
-        size = get_message(data);
-        root = get_root(size);
-
-        crunch(data,fractal,root,direction);
-        print_cipher_text(data,size);
-    }
-    else
-    {
-        size = get_cipher_text(data);
-        root = get_root(size);
-
-        crunch(data,fractal,root,direction);
-        print_message(data, size);
-    }
-}
-
-void crunch_file(FRACTAL_TYPE fractal, DIRECTION direction)
-{
-    FILE *file;
-    char file_name[256];
-    unsigned char *data;
-    unsigned int root;
-    long int size;
-
-    printf("\nfile name: ");
-    scanf("%s", &file_name);
-    while(getchar() != '\n');
-    file = fopen64( file_name,"rb+");
-
-    if(file)
-    {
-        fseek(file,0, SEEK_END);
-        size = ftell(file);
-        fseek(file,0, SEEK_SET);
-
-        root = get_root(size);
-        data = (unsigned char*)malloc(root*root);
-
-        fread(data,sizeof(char),size,file);
-        fseek(file,0, SEEK_SET);
-
-        crunch(data, fractal, root, direction);
-
-        fwrite(data,sizeof(char),size,file);
-
-        fclose(file);
-        free(data);
-
-        if(direction == ENCRYPT)
-        {
-            printf("\n############ File Encrypted ############\n\n");
-        }
-        else
-        {
-            printf("\n############ File Decrypted ############\n\n");
-        }
-    }
+    memcpy(&fractal->top_left.x_point, &data[index],sizeof(fractal->top_left.x_point));
+    index += sizeof(fractal->top_left.x_point);
+    memcpy(&fractal->top_left.y_point, &data[index],sizeof(fractal->top_left.y_point));
+    index += sizeof(fractal->top_left.y_point);
+    memcpy(&fractal->top_right.x_point, &data[index],sizeof(fractal->top_right.x_point));
+    index += sizeof(fractal->top_right.x_point);
+    memcpy(&fractal->top_right.y_point, &data[index],sizeof(fractal->top_right.y_point));
+    index += sizeof(fractal->top_right.y_point);
+    memcpy(&fractal->bottom_left.x_point, &data[index],sizeof(fractal->bottom_left.x_point));
+    index += sizeof(fractal->bottom_left.x_point);
+    memcpy(&fractal->bottom_left.y_point, &data[index],sizeof(fractal->bottom_left.y_point));
+    index += sizeof(fractal->bottom_left.y_point);
+    memcpy(&fractal->bottom_right.x_point, &data[index],sizeof(fractal->bottom_right.x_point));
+    index += sizeof(fractal->bottom_right.x_point);
+    memcpy(&fractal->bottom_right.y_point, &data[index],sizeof(fractal->bottom_right.y_point));
 }
 
 void save_fractal(FRACTAL_TYPE fractal, FRACTAL_TYPE master_fractal)
@@ -401,48 +423,26 @@ void save_fractal(FRACTAL_TYPE fractal, FRACTAL_TYPE master_fractal)
     scanf("%s", &file_name);
     while(getchar() != '\n');
     file = fopen(file_name, "rb");
-
     if(file)
     {
-        fseek(file,0, SEEK_END);
-        size = ftell(file);
-        fseek(file,0, SEEK_SET);
-
-        if(size != 0)
+        printf("Overwrite Key? y/n ");
+        scanf("%c", &temp_char);
+        while(getchar() != '\n');
+        if(temp_char != 'y')
         {
-            printf("Overwrite Key? y/n ");
-            scanf("%c", &temp_char);
-            while(getchar() != '\n');
-            if(temp_char != 'y')
-            {
-
-                return;
-            }
+            return;
         }
         fclose(file);
-        file = fopen(file_name, "wb");
+    }
 
-        memcpy(&data[index],&fractal.top_left.x_point, sizeof(fractal.top_left.x_point));
-        index += sizeof(fractal.top_left.x_point);
-        memcpy(&data[index],&fractal.top_left.y_point, sizeof(fractal.top_left.y_point));
-        index += sizeof(fractal.top_left.y_point);
-        memcpy(&data[index],&fractal.top_right.x_point, sizeof(fractal.top_right.x_point));
-        index += sizeof(fractal.top_right.x_point);
-        memcpy(&data[index],&fractal.top_right.y_point, sizeof(fractal.top_right.y_point));
-        index += sizeof(fractal.top_right.y_point);
-        memcpy(&data[index],&fractal.bottom_left.x_point, sizeof(fractal.bottom_left.x_point));
-        index += sizeof(fractal.bottom_left.x_point);
-        memcpy(&data[index],&fractal.bottom_left.y_point, sizeof(fractal.bottom_left.y_point));
-        index += sizeof(fractal.bottom_left.y_point);
-        memcpy(&data[index],&fractal.bottom_right.x_point, sizeof(fractal.bottom_right.x_point));
-        index += sizeof(fractal.bottom_right.x_point);
-        memcpy(&data[index],&fractal.bottom_right.y_point, sizeof(fractal.bottom_right.y_point));
-
+    file = fopen(file_name, "wb");
+    if(file)
+    {
+        fractal_to_memory( fractal, data);
         crunch(data, master_fractal, root, ENCRYPT);
-
         fwrite(&data, sizeof(char),256,file);
-        fclose(file);
 
+        fclose(file);
         printf("Key Saved\n");
     }
 }
@@ -464,29 +464,34 @@ FRACTAL_TYPE load_fractal(FRACTAL_TYPE master_fractal)
 	if(file)
 	{
 		fread(&data, sizeof(char),256,file);
-
         crunch(data, master_fractal, root, DECRYPT);
-
-        memcpy(&fractal.top_left.x_point, &data[index],sizeof(fractal.top_left.x_point));
-        index += sizeof(fractal.top_left.x_point);
-        memcpy(&fractal.top_left.y_point, &data[index],sizeof(fractal.top_left.y_point));
-        index += sizeof(fractal.top_left.y_point);
-        memcpy(&fractal.top_right.x_point, &data[index],sizeof(fractal.top_right.x_point));
-        index += sizeof(fractal.top_right.x_point);
-        memcpy(&fractal.top_right.y_point, &data[index],sizeof(fractal.top_right.y_point));
-        index += sizeof(fractal.top_right.y_point);
-        memcpy(&fractal.bottom_left.x_point, &data[index],sizeof(fractal.bottom_left.x_point));
-        index += sizeof(fractal.bottom_left.x_point);
-        memcpy(&fractal.bottom_left.y_point, &data[index],sizeof(fractal.bottom_left.y_point));
-        index += sizeof(fractal.bottom_left.y_point);
-        memcpy(&fractal.bottom_right.x_point, &data[index],sizeof(fractal.bottom_right.x_point));
-        index += sizeof(fractal.bottom_right.x_point);
-        memcpy(&fractal.bottom_right.y_point, &data[index],sizeof(fractal.bottom_right.y_point));
+        memory_to_fractal(data, &fractal);
 
 		fclose(file);
         printf("Key Loaded\n");
 	}
 	return fractal;
+}
+
+FRACTAL_TYPE set_fractal()
+{
+    unsigned char data[256];
+    FRACTAL_TYPE fractal;
+
+    get_hex(data);
+    memory_to_fractal(data, &fractal);
+
+    return fractal;
+}
+
+void print_key(FRACTAL_TYPE fractal)
+{
+    int ii;
+    unsigned char data[256];
+
+    fractal_to_memory(fractal, data);
+
+    print_hex(data, 64);
 }
 
 void print_menu()
@@ -499,6 +504,8 @@ void print_menu()
 	printf("5 Load Key\n");
 	printf("6 Create Key\n");
     printf("7 Enter Manual Key\n");
+    printf("8 Print Key\n");
+    printf("0 Quit\n");
 	printf("\nEnter: ");
 }
 
@@ -553,8 +560,17 @@ int main()
             case 7:
             {
                 fractal = set_fractal();
-                print_fractal(fractal);
+                save_fractal(fractal, master_fractal);
                 break;
+            }
+            case 8:
+            {
+                print_key(fractal);
+                break;
+            }
+            case 0:
+            {
+                return 0;
             }
 			default:
 			{
