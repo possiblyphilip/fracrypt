@@ -7,30 +7,6 @@ HOW TO USE THE PROGRAM:
 
 At start up fracrypt will show a text image of the Mandelbrot set.
 
-v                  ***********************************************************
-u              ***************************************************************
-t           *************                              ***********************
-s         ********                     ****** ** *  *****     ****************
-r       *****                     ********       *** * ******      ***********
-q     ****                   **********  *** * ******* *    ****      ********
-p    **                  *******   *  ** **  *********** *   *  **       *****
-o  **                ***        *** *  ******************* ** *   **       ***
-n            **** * * ****       ** ************************* *   ***        *
-m    ********    *    ***  **    * *************************** * * ***        
-l *******   *** **  * ***************************************** *  ***        
-k **********************************************************   *   ***        
-j *******   *** **  * ***************************************** *  ***        
-i    ********    *    ***  **    * *************************** * * ***        
-h            **** * * ****       ** ************************* *   ***        *
-g  **                ***        *** *  ******************* ** *   **       ***
-f    **                  *******   *  ** **  *********** *   *  **       *****
-e     ****                   **********  *** * ******* *    ****      ********
-d       *****                     ********       *** * ******      ***********
-c         ********                     ****** ** *  *****     ****************
-b           *************                              ***********************
-a              ***************************************************************
- 012345678911111 111122222 222233333 333344444 444455555 555566666 666677777 77
-
 you log in by picking a sub window of the Mandelbrot set shown on screen. This will be your master key which encrypts
 or decrypts data with other keys you have created while logged in with this master key. if you use the default master 
 key it will not be secure. if you log in with a different master key only the keys you had previously created with that
@@ -70,15 +46,15 @@ enter a file name and the file will be decrypted with the key you currently have
 enter a file name to load a key file.
 
 6 Create Key
-search the mandelbrot set to find a sub window to use as a key
+search the mandelbrot set to find a sub window to use as a key.
 
 7 Enter Manual Key
-enter the hex value for a key
+enter the hex value for a key. This is your key in plain text so be careful with it.
 
 8 Print Key
-print the hex value of a key
+print the hex value of a key. This is your key in plain text so be careful with it.
 
-9 Quit
+0 Quit
 
 
 
