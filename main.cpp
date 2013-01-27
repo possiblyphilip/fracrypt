@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define LENGTH 1000
 #define DEPTH 100000
@@ -488,48 +489,6 @@ FRACTAL_TYPE load_fractal(FRACTAL_TYPE master_fractal)
 	return fractal;
 }
 
-void crack()
-{
-    double spaces = 1000000000;
-    double spacing = 1.0/spaces;
-
-    FRACTAL_TYPE fractal;
-    int root = 13;
-    unsigned char *data;
-
-    double temp = 0;
-
-    data = (unsigned char *)malloc(sizeof(char) * (root*root));
-
-    for(fractal.top_left.y_point = 1.5; fractal.top_left.y_point >= -1.5; fractal.top_left.y_point -= spacing)
-    {
-        for(fractal.top_left.x_point = -2; fractal.top_left.x_point <= 1; fractal.top_left.x_point += spacing)
-        {
-            for(fractal.top_right.y_point = 1.5; fractal.top_right.y_point >= -1.5; fractal.top_right.y_point -= spacing)
-            {
-                for(fractal.top_right.x_point = 1; fractal.top_right.x_point >= -2; fractal.top_right.x_point -= spacing)
-                {
-                    for(fractal.bottom_left.y_point = -1.5; fractal.bottom_left.y_point <= 1.5; fractal.bottom_left.y_point += spacing)
-                    {
-                        for(fractal.bottom_left.x_point = -2; fractal.bottom_left.x_point <= 1; fractal.bottom_left.x_point += spacing)
-                        {
-                            for(fractal.bottom_right.y_point = -1.5; fractal.bottom_right.y_point < 1.5; fractal.bottom_right.y_point += spacing)
-                            {
-                                for(fractal.bottom_right.x_point = 1; fractal.bottom_right.x_point >= -1; fractal.bottom_right.x_point -= spacing)
-                                {
-                                    crunch(data, fractal, root, ENCRYPT);
-                                    temp += 1;
-                                    printf("percent done = %lf / %lf\n", temp, (spaces*spaces*spaces*spaces*spaces*spaces*spaces*spaces));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void print_menu()
 {
 	printf("\n");
@@ -599,8 +558,6 @@ int main()
             }
 			default:
 			{
-                printf("\nFutile Option\n");
-                crack();
 			}
 		}
     }
